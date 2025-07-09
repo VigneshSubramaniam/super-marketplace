@@ -5,10 +5,8 @@ function App() {
   const [message, setMessage] = useState('');
   const [clickCount, setClickCount] = useState(0);
   const [apiResponse, setApiResponse] = useState('');
-  const [templateResponse, setTemplateResponse] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [templateLoading, setTemplateLoading] = useState(false);
   const [gatewayApiResponse, setGatewayApiResponse] = useState('');
+  const [loading, setLoading] = useState(false);
   const [gatewayApiLoading, setGatewayApiLoading] = useState(false);
 
   useEffect(() => {
@@ -115,103 +113,6 @@ function App() {
     }
   };
 
-  const handleTemplateCall = async () => {
-    setTemplateLoading(true);
-    setTemplateResponse('');
-    
-    try {
-      if (!window.client) {
-        throw new Error('Gateway client not loaded');
-      }
-
-      // Test external API call through template
-      const response = await window.client.request.invokeTemplate('testExternalApi', {
-        context: { 
-          postId: 1 
-        }
-      });
-
-      if (response.success) {
-        setTemplateResponse(`✅ TEMPLATE SUCCESS: ${response.data.title} (ID: ${response.data.id})`);
-        console.log('Template call successful:', response.data);
-      } else {
-        setTemplateResponse(`❌ TEMPLATE ERROR: ${response.error}`);
-        console.error('Template call failed:', response);
-      }
-    } catch (error) {
-      setTemplateResponse(`❌ TEMPLATE ERROR: ${error.message}`);
-      console.error('Template error from App 2:', error);
-    } finally {
-      setTemplateLoading(false);
-    }
-  };
-
-  const handleWeatherCall = async () => {
-    setTemplateLoading(true);
-    setTemplateResponse('');
-    
-    try {
-      if (!window.client) {
-        throw new Error('Gateway client not loaded');
-      }
-
-      // Test weather API call through template
-      const response = await window.client.request.invokeTemplate('weatherApi', {
-        context: { 
-          city: 'London',
-          weatherApiKey: 'demo-key' // This would fail but shows the pattern
-        }
-      });
-
-      if (response.success) {
-        setTemplateResponse(`✅ WEATHER SUCCESS: ${response.data.weather[0].description}`);
-        console.log('Weather call successful:', response.data);
-      } else {
-        setTemplateResponse(`❌ WEATHER ERROR: ${response.error}`);
-        console.error('Weather call failed:', response);
-      }
-    } catch (error) {
-      setTemplateResponse(`❌ WEATHER ERROR: ${error.message}`);
-      console.error('Weather error from App 2:', error);
-    } finally {
-      setTemplateLoading(false);
-    }
-  };
-
-  const handlePostDataCall = async () => {
-    setTemplateLoading(true);
-    setTemplateResponse('');
-    
-    try {
-      if (!window.client) {
-        throw new Error('Gateway client not loaded');
-      }
-
-      // Test POST data through template
-      const response = await window.client.request.invokeTemplate('postExternalData', {
-        context: {},
-        body: {
-          title: 'Test Post from App 2',
-          body: 'This is a test post created via template',
-          userId: 1
-        }
-      });
-
-      if (response.success) {
-        setTemplateResponse(`✅ POST SUCCESS: Created post with ID ${response.data.id}`);
-        console.log('POST call successful:', response.data);
-      } else {
-        setTemplateResponse(`❌ POST ERROR: ${response.error}`);
-        console.error('POST call failed:', response);
-      }
-    } catch (error) {
-      setTemplateResponse(`❌ POST ERROR: ${error.message}`);
-      console.error('POST error from App 2:', error);
-    } finally {
-      setTemplateLoading(false);
-    }
-  };
-
   return (
     <div className="app">
       <header className="app-header">
@@ -247,37 +148,6 @@ function App() {
           </p>
         )}
         
-        <div className="template-section">
-          <h3>🔥 NEW: Request Templates (Freshworks Style)</h3>
-          <div className="button-group">
-            <button 
-              onClick={handleTemplateCall} 
-              className="app-button template-button"
-              disabled={templateLoading}
-            >
-              {templateLoading ? 'Loading...' : 'Test External API'}
-            </button>
-            <button 
-              onClick={handlePostDataCall} 
-              className="app-button template-button"
-              disabled={templateLoading}
-            >
-              {templateLoading ? 'Loading...' : 'POST Data'}
-            </button>
-            <button 
-              onClick={handleWeatherCall} 
-              className="app-button template-button"
-              disabled={templateLoading}
-            >
-              {templateLoading ? 'Loading...' : 'Weather API'}
-            </button>
-          </div>
-          {templateResponse && (
-            <p className={`api-response ${templateResponse.includes('SUCCESS') ? 'success' : 'error'}`}>
-              {templateResponse}
-            </p>
-          )}
-        </div>
       </header>
       
       <main className="app-main">
@@ -286,8 +156,7 @@ function App() {
           <p>This app is embedded in App 1 via an iframe.</p>
           <p>🚫 <strong>Direct API calls</strong> are blocked by CORS (red button)</p>
           <p>✅ <strong>Gateway API calls</strong> work perfectly (purple button - same API!)</p>
-          <p>✅ <strong>Template calls</strong> work through the gateway proxy (green buttons)</p>
-          <p>Click the buttons above to test all approaches!</p>
+          <p>Click the buttons above to test both approaches!</p>
         </div>
       </main>
     </div>
