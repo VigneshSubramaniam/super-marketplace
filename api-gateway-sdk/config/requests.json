@@ -1,0 +1,93 @@
+{
+  "createTicket": {
+    "method": "POST",
+    "host": "localhost:8000",
+    "protocol": "http",
+    "path": "/api/tickets",
+    "headers": {
+      "Authorization": "Bearer <%= context.apiKey %>",
+      "Content-Type": "application/json",
+      "X-App-Origin": "<%= context.appOrigin %>"
+    }
+  },
+  "getTickets": {
+    "method": "GET",
+    "host": "localhost:8000",
+    "protocol": "http",
+    "path": "/api/tickets",
+    "headers": {
+      "Authorization": "Bearer <%= context.apiKey %>",
+      "Content-Type": "application/json"
+    }
+  },
+  "updateTicket": {
+    "method": "PUT",
+    "host": "localhost:8000",
+    "protocol": "http",
+    "path": "/api/tickets/<%= context.ticketId %>",
+    "headers": {
+      "Authorization": "Bearer <%= context.apiKey %>",
+      "Content-Type": "application/json"
+    }
+  },
+  "getUser": {
+    "method": "GET",
+    "host": "localhost:8000",
+    "protocol": "http",
+    "path": "/api/users/<%= context.userId %>",
+    "headers": {
+      "Authorization": "Bearer <%= context.apiKey %>",
+      "Content-Type": "application/json"
+    }
+  },
+  "backendTestApi": {
+    "method": "GET",
+    "host": "localhost:8000",
+    "protocol": "http",
+    "path": "/api/test",
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "Super-Marketplace-Gateway/1.0"
+    }
+  },
+  "testExternalApi": {
+    "method": "GET",
+    "host": "jsonplaceholder.typicode.com",
+    "protocol": "https",
+    "path": "/posts/<%= context.postId %>",
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "Super-Marketplace-App/1.0"
+    }
+  },
+  "postExternalData": {
+    "method": "POST",
+    "host": "jsonplaceholder.typicode.com",
+    "protocol": "https",
+    "path": "/posts",
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "Super-Marketplace-App/1.0"
+    }
+  },
+  "githubUserInfo": {
+    "method": "GET",
+    "host": "api.github.com",
+    "protocol": "https",
+    "path": "/users/<%= context.username %>",
+    "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "Super-Marketplace-App/1.0"
+    }
+  },
+  "weatherApi": {
+    "method": "GET",
+    "host": "api.openweathermap.org",
+    "protocol": "https",
+    "path": "/data/2.5/weather?q=<%= context.city %>&appid=<%= context.weatherApiKey %>",
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "Super-Marketplace-App/1.0"
+    }
+  }
+} 

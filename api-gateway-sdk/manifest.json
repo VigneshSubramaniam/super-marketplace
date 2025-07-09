@@ -1,0 +1,60 @@
+{
+  "platform-version": "2.3",
+  "product": {
+    "freshdesk": {
+      "location": {
+        "ticket_sidebar": {
+          "url": "index.html",
+          "icon": "app_icon.svg"
+        }
+      },
+      "events": {
+        "onTicketCreate": {
+          "handler": "onTicketCreateHandler"
+        }
+      },
+      "requests": {
+        "createTicket": {},
+        "getTickets": {},
+        "updateTicket": {},
+        "getUser": {},
+        "testExternalApi": {}
+      }
+    },
+    "app1": {
+      "location": {
+        "main_app": {
+          "url": "http://localhost:3000",
+          "icon": "app_icon.svg"
+        }
+      },
+      "requests": {
+        "getTickets": {},
+        "createTicket": {},
+        "getUser": {},
+        "testExternalApi": {},
+        "githubUserInfo": {}
+      }
+    },
+    "app2": {
+      "location": {
+        "embedded_app": {
+          "url": "http://localhost:3001",
+          "icon": "app_icon.svg"
+        }
+      },
+      "requests": {
+        "getTickets": {},
+        "updateTicket": {},
+        "backendTestApi": {},
+        "testExternalApi": {},
+        "postExternalData": {},
+        "weatherApi": {}
+      }
+    }
+  },
+  "engines": {
+    "node": "18.12.1",
+    "gateway": "1.0.0"
+  }
+} 
