@@ -1,0 +1,76 @@
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: #fff3e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.app-header h1 {
+  color: #ff6f00;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.app-button {
+  background-color: #ff6f00;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px;
+}
+
+.app-button:hover {
+  background-color: #e65100;
+}
+
+.app-button:active {
+  transform: translateY(1px);
+}
+
+.message {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #fff3e0;
+  border: 1px solid #ff6f00;
+  border-radius: 4px;
+  color: #e65100;
+  font-weight: 500;
+}
+
+.app-main {
+  margin-top: 30px;
+}
+
+.info-box {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #ff6f00;
+}
+
+.info-box h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.info-box p {
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+} 
