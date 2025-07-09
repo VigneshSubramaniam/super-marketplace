@@ -9,34 +9,34 @@ class RequestTemplateManager {
   }
 
   loadRequestTemplates() {
-    // Load request templates from config/requests.json
-    const requestsPath = path.join(process.cwd(), 'config', 'requests.json');
+    // Load request templates from app2/config/requests.json
+    const requestsPath = path.join(process.cwd(), '..', 'app2', 'config', 'requests.json');
     if (fs.existsSync(requestsPath)) {
       try {
         const requestsData = JSON.parse(fs.readFileSync(requestsPath, 'utf8'));
         for (const [templateName, templateConfig] of Object.entries(requestsData)) {
           this.templates.set(templateName, templateConfig);
         }
-        console.log(`✅ Loaded ${this.templates.size} request templates`);
+        console.log(`✅ Loaded ${this.templates.size} request templates from app2/config/requests.json`);
       } catch (error) {
         console.error('❌ Error loading request templates:', error.message);
       }
     } else {
-      console.log('⚠️  No request templates found at config/requests.json');
+      console.log('⚠️  No request templates found at app2/config/requests.json');
     }
 
-    // Load manifest templates from manifest.json
-    const manifestPath = path.join(process.cwd(), 'manifest.json');
+    // Load manifest templates from app2/manifest.json
+    const manifestPath = path.join(process.cwd(), '..', 'app2', 'manifest.json');
     if (fs.existsSync(manifestPath)) {
       try {
         const manifestData = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
         this.loadManifestTemplates(manifestData);
-        console.log(`✅ Loaded manifest templates for ${Object.keys(manifestData.product || {}).length} products`);
+        console.log(`✅ Loaded manifest templates for ${Object.keys(manifestData.product || {}).length} products from app2/manifest.json`);
       } catch (error) {
         console.error('❌ Error loading manifest templates:', error.message);
       }
     } else {
-      console.log('⚠️  No manifest.json found');
+      console.log('⚠️  No manifest.json found at app2/manifest.json');
     }
   }
 
