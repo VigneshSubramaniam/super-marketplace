@@ -6,11 +6,14 @@ const morgan = require('morgan');
 const app = express();
 const PORT = 8000;
 
-// CORS configuration - only allow App 1 (port 3000)
+// CORS configuration - allow App 1 (port 3000) and API Gateway (port 9000)
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests from App 1 only
-    const allowedOrigins = ['http://localhost:3000'];
+    // Allow requests from App 1 directly and API Gateway for proxied requests
+    const allowedOrigins = [
+      'http://localhost:3000',  // App 1 - direct access
+      'http://localhost:9000'   // API Gateway - for App 2 proxied requests
+    ];
     
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -18,7 +21,7 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS policy. Only App 1 (port 3000) is authorized.'));
+      callback(new Error('Not allowed by CORS policy. Only App 1 (direct) and API Gateway (proxied) are authorized.'));
     }
   },
   credentials: true,
@@ -81,7 +84,7 @@ app.use((error, req, res, next) => {
     res.status(403).json({
       success: false,
       error: 'CORS Error',
-      message: 'Access denied. Only App 1 (port 3000) is authorized to access this API.',
+      message: 'Access denied. Only App 1 (direct) and API Gateway (proxied) are authorized to access this API.',
       origin: req.get('origin') || 'unknown'
     });
   } else {
@@ -104,8 +107,10 @@ app.use('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`✅ CORS enabled for: http://localhost:3000 (App 1)`);
-  console.log(`❌ CORS blocked for: http://localhost:3001 (App 2)`);
+  console.log(`✅ CORS enabled for:`);
+  console.log(`   - http://localhost:3000 (App 1 - Direct Access)`);
+  console.log(`   - http://localhost:9000 (API Gateway - Proxied Access)`);
+  console.log(`❌ CORS blocked for: http://localhost:3001 (App 2 - Must use Gateway)`);
   console.log(`📋 Available endpoints:`);
   console.log(`   GET  /health - Health check`);
   console.log(`   GET  /api/test - Test endpoint`);

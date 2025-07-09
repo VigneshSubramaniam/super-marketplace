@@ -1,170 +1,398 @@
-# Super Marketplace - Frontend Apps with Express Backend
+# Super Marketplace POC
 
-This project contains two separate React frontend applications with webpack configurations, proper source maps for debugging, and an Express backend server with CORS restrictions.
+A proof of concept for Super Marketplace featuring multiple React frontend applications with an API Gateway SDK for seamless cross-domain API communication.
+
+## Architecture Overview
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   App 1 (3000)  │    │   App 2 (3001)  │    │   Backend API   │
+│  Main App with  │───▶│  Embedded App   │    │   Server (8000) │
+│     iframe      │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       ▲
+         │                       │                       │
+         │                       ▼                       │
+         │              ┌─────────────────┐              │
+         │              │  API Gateway    │              │
+         └──────────────│   SDK (9000)    │──────────────┘
+          Direct API    │                 │    Proxied API
+          Calls         └─────────────────┘    Calls
+```
+
+## Components
+
+### 1. Frontend Applications
+
+- **App 1** (Port 3000): Main application with iframe embedding App 2
+  - Makes **direct API calls** to backend server (port 8000)
+  - No CORS issues since it's whitelisted in backend CORS configuration
+  - Displays App 2 in an iframe
+
+- **App 2** (Port 3001): Embedded application running in iframe
+  - Uses **API Gateway SDK** to communicate with backend
+  - Avoids CORS issues by proxying requests through the gateway
+  - Cannot make direct API calls due to CORS restrictions
+
+Both apps feature:
+- React with webpack dev server
+- Source maps for debugging
+- Hot module replacement
+- Modern UI with click counters
+
+### 2. API Gateway SDK (Port 9000)
+
+Universal API Gateway that eliminates CORS issues for embedded applications:
+- **Dynamic CORS Management**: Runtime domain registration
+- **Universal Client SDK**: Easy-to-use client library
+- **Environment-Agnostic**: Development, staging, and production support
+- **Security & Monitoring**: API key authentication and rate limiting
+- **Proxy Architecture**: Same-origin proxy eliminates CORS for embedded apps
+
+### 3. Backend Server (Port 8000)
+
+Express.js server with:
+- CORS configuration allowing:
+  - App 1 (port 3000) for direct access
+  - API Gateway (port 9000) for proxied access from App 2
+- Sample API endpoints (`/api/test`, `/api/data`, `/api/users`)
+- Comprehensive error handling
+- Request logging and monitoring
+
+## Quick Start
+
+### 1. Install All Dependencies
+
+```bash
+npm run install:all
+```
+
+### 2. Start All Services
+
+```bash
+# Start all services (frontend apps, API Gateway, and backend)
+npm start
+
+# Or start individual services
+npm run start:app1      # App 1 on port 3000
+npm run start:app2      # App 2 on port 3001
+npm run start:gateway   # API Gateway on port 9000
+npm run start:server    # Backend server on port 8000
+```
+
+### 3. Access the Applications
+
+- **App 1**: http://localhost:3000 (includes App 2 in iframe)
+- **App 2**: http://localhost:3001 (standalone)
+- **API Gateway**: http://localhost:9000 (management endpoints)
+- **Backend API**: http://localhost:8000 (direct API access)
+
+## API Communication Patterns
+
+### App 1 - Direct API Calls
+
+```javascript
+// App 1 makes direct fetch calls to backend
+const response = await fetch('http://localhost:8000/api/test', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+```
+
+### App 2 - API Gateway SDK
+
+```javascript
+// App 2 uses API Gateway SDK
+const apiGateway = new ApiGatewaySDK({
+  gatewayUrl: 'http://localhost:9000',
+  apiKey: 'development-key-2',
+  clientDomain: window.location.origin
+});
+
+const response = await apiGateway.get('/test');
+```
+
+### Key Differences
+
+1. **App 1**: Direct API calls, no CORS issues (whitelisted)
+2. **App 2**: API Gateway SDK, CORS issues solved via proxy
+3. **Backend**: Allows both direct (App 1) and proxied (Gateway) access
+
+## CORS Solution
+
+The architecture solves CORS issues differently for each app:
+
+### App 1 (Direct Access)
+```
+App 1 (port 3000) → Backend (port 8000) ✅ Whitelisted in CORS
+```
+
+### App 2 (Proxied Access)
+```
+App 2 (port 3001) → API Gateway (port 9000) → Backend (port 8000) ✅ Proxy eliminates CORS
+```
+
+### Why This Architecture?
+
+1. **App 1** is the main application and can be trusted with direct API access
+2. **App 2** is embedded and uses the gateway for security and CORS management
+3. **Backend** maintains control over which origins can access APIs directly
+4. **API Gateway** provides a secure, monitored way for embedded apps to access APIs
+
+## API Gateway SDK Usage
+
+### In Your Application
+
+```javascript
+// Initialize the SDK
+const apiGateway = new ApiGatewaySDK({
+  gatewayUrl: 'http://localhost:9000',
+  apiKey: 'development-key-1',
+  clientDomain: window.location.origin
+});
+
+// Make API calls
+const response = await apiGateway.get('/test');
+const users = await apiGateway.getUsers();
+await apiGateway.post('/data', { message: 'Hello' });
+```
+
+### Key Features
+
+1. **No CORS Issues**: All requests go through the gateway
+2. **Dynamic Domain Registration**: Automatically registers your domain
+3. **Retry Logic**: Built-in retry mechanism for failed requests
+4. **Event System**: Listen to request/response events
+5. **Environment Detection**: Auto-detects development vs production
+
+## Development Scripts
+
+```bash
+# Install dependencies for all projects
+npm run install:all
+
+# Start all services in development mode
+npm run dev
+
+# Build all projects
+npm run build
+
+# Clean all node_modules
+npm run clean
+
+# Individual service commands
+npm run dev:app1        # App 1 with hot reload
+npm run dev:app2        # App 2 with hot reload
+npm run dev:gateway     # API Gateway with nodemon
+npm run dev:server      # Backend server with nodemon
+```
 
 ## Project Structure
 
 ```
 super-marketplace/
-├── app1/                 # Main app running on port 3000
+├── app1/                   # Main React application
 │   ├── src/
-│   │   ├── index.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   └── index.css
+│   │   ├── App.js         # Main app component with API Gateway SDK
+│   │   └── App.css        # Styling
 │   ├── public/
-│   │   └── index.html
-│   ├── package.json
-│   └── webpack.config.js
-├── app2/                 # Embedded app running on port 3001
-│   ├── src/
-│   │   ├── index.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── public/
-│   │   └── index.html
-│   ├── package.json
-│   └── webpack.config.js
-├── server/               # Express backend on port 8000
-│   ├── server.js
+│   ├── webpack.config.js  # Webpack configuration
 │   └── package.json
-└── package.json
+├── app2/                   # Embedded React application
+│   ├── src/
+│   │   ├── App.js         # Embedded app with API Gateway SDK
+│   │   └── App.css        # Styling
+│   ├── public/
+│   ├── webpack.config.js  # Webpack configuration
+│   └── package.json
+├── api-gateway-sdk/        # API Gateway SDK
+│   ├── src/
+│   │   ├── gateway/       # Gateway server components
+│   │   │   ├── server.js  # Main server
+│   │   │   ├── cors.js    # Dynamic CORS handler
+│   │   │   ├── proxy.js   # API proxy handler
+│   │   │   └── auth.js    # Authentication middleware
+│   │   ├── client/        # Client SDK
+│   │   │   └── sdk.js     # Universal client library
+│   │   └── config/        # Configuration
+│   │       └── environment.js
+│   ├── README.md          # Detailed SDK documentation
+│   └── package.json
+├── server/                 # Backend Express server
+│   ├── server.js          # Main server file
+│   └── package.json
+├── .gitignore             # Git ignore rules
+├── package.json           # Root package.json with scripts
+└── README.md              # This file
 ```
 
-## Features
+## API Endpoints
 
-### Frontend Apps:
-- **App 1 (Port 3000)**: Main application with buttons and iframe that embeds App 2
-- **App 2 (Port 3001)**: Embedded application with buttons and click counter
-- **Webpack Configuration**: Both apps have proper webpack configs with source maps
-- **Development Mode**: Source maps enabled for debugging (`eval-source-map`)
-- **Hot Module Replacement**: Live reload during development
-- **API Integration**: Both apps have buttons to test API calls
+### Gateway Management (Port 9000)
 
-### Backend Server:
-- **Express Server (Port 8000)**: RESTful API server
-- **CORS Protection**: Only allows requests from App 1 (port 3000)
-- **Security**: Helmet middleware for security headers
-- **Logging**: Morgan middleware for request logging
-- **API Endpoints**: Multiple test endpoints for demonstration
-
-## Installation
-
-1. Install dependencies for all applications:
-```bash
-npm run install:all
-```
-
-Or install individually:
-```bash
-npm run install:app1
-npm run install:app2
-npm run install:server
-```
-
-## Development
-
-### Start all applications:
-
-**Terminal 1 - Start the server:**
-```bash
-npm run start:server
-```
-
-**Terminal 2 - Start App 2:**
-```bash
-npm run start:app2
-```
-
-**Terminal 3 - Start App 1:**
-```bash
-npm run start:app1
-```
-
-**Note**: Start in this order to ensure proper initialization.
-
-### Individual app commands:
-```bash
-# Start Express server (port 8000)
-npm run start:server
-
-# Start App 1 (port 3000)
-npm run start:app1
-
-# Start App 2 (port 3001)
-npm run start:app2
-```
-
-## API Testing
-
-### Available Endpoints:
 - `GET /health` - Health check
+- `GET /gateway/info` - Gateway information and stats
+- `GET /gateway/stats` - Request statistics
+- `GET /gateway/logs` - Recent request logs
+- `GET /gateway/domains` - Domain configuration
+- `POST /gateway/register-domain` - Register new domain
+- `POST /gateway/generate-key` - Generate API key (dev only)
+
+### API Proxy (Port 9000)
+
+- `ALL /api/*` - Proxy all API requests to backend
+
+### Backend API (Port 8000)
+
 - `GET /api/test` - Test endpoint
-- `POST /api/data` - Data submission
-- `GET /api/users` - Get users list
+- `POST /api/data` - Data submission endpoint
+- `GET /api/users` - Users list endpoint
+- `GET /health` - Health check
 
-### CORS Behavior:
-- ✅ **App 1 (port 3000)**: API calls will succeed
-- ❌ **App 2 (port 3001)**: API calls will be blocked by CORS
+## Configuration
 
-### Testing the API:
-1. Open App 1 at `http://localhost:3000`
-2. Click "Call API (Should Work)" - Should show success message
-3. In the embedded App 2 iframe, click "Call API (Should Fail)" - Should show CORS error
-4. Check browser console for detailed error messages
-
-## Build
+### Environment Variables
 
 ```bash
-# Build both frontend apps
-npm run build:all
-
-# Build individual apps
-npm run build:app1
-npm run build:app2
+# API Gateway SDK
+NODE_ENV=development
+PORT=9000
+GATEWAY_URL=http://localhost:9000
+BACKEND_URL=http://localhost:8000
 ```
 
-## Usage
+### API Keys
 
-1. Start all applications using the commands above
-2. Open your browser and navigate to `http://localhost:3000`
-3. Test the regular buttons in both apps
-4. Test the API call buttons to see CORS behavior:
-   - App 1's API button should work (green button)
-   - App 2's API button should fail with CORS error (red button)
-5. Open browser DevTools to see:
-   - Source maps working for debugging
-   - Network requests and CORS errors
-   - Console logs from both apps
+Development keys are pre-configured:
+- `development-key-1`: App 1 Development
+- `development-key-2`: App 2 Development
 
-## Architecture
+Generate new keys:
+```bash
+curl -X POST http://localhost:9000/gateway/generate-key \
+  -H "Content-Type: application/json" \
+  -d '{"prefix": "dev", "description": "New development key"}'
+```
 
-### CORS Configuration:
-The server uses a strict CORS policy that only allows requests from `http://localhost:3000` (App 1). This demonstrates:
-- **Allowed Origin**: App 1 can successfully make API calls
-- **Blocked Origin**: App 2 requests are rejected with CORS error
-- **Security**: Prevents unauthorized cross-origin requests
+## Testing
 
-### Security Features:
-- Helmet middleware for security headers
-- CORS protection with whitelist
-- Request logging with Morgan
-- Error handling for CORS violations
+### Test API Gateway
 
-## Webpack Configuration
+```bash
+# Health check
+curl http://localhost:9000/health
 
-Both apps include:
-- Babel transpilation for React and modern JavaScript
-- CSS loader for styling
-- HTML plugin for template generation
-- Source maps for debugging (`eval-source-map`)
-- Hot Module Replacement for development
-- Production build optimization
+# Test with API key
+curl -H "X-API-Key: development-key-1" \
+  http://localhost:9000/api/test
 
-## Next Steps
+# Register domain
+curl -X POST http://localhost:9000/gateway/register-domain \
+  -H "Content-Type: application/json" \
+  -d '{"domain": "https://myapp.com", "apiKey": "development-key-1"}'
+```
 
-- ✅ Frontend apps are ready and functional
-- ✅ Backend server with CORS protection is implemented
-- ✅ API integration demonstrates security policies
-- Ready for further API development and feature expansion
+### Test Frontend Integration
+
+1. Open App 1: http://localhost:3000
+2. Click "Test API Gateway Connection" - should succeed
+3. Open App 2: http://localhost:3001
+4. Click "Test API Gateway Connection" - should succeed
+5. Both apps now work without CORS issues!
+
+## Deployment
+
+### Production Configuration
+
+```javascript
+// api-gateway-sdk/src/config/environment.js
+production: {
+  gatewayPort: 443,
+  gatewayUrl: 'https://gateway.company.com',
+  allowedOrigins: ['https://app1.company.com'],
+  backendUrl: 'https://api.company.com',
+  domainPatterns: ['https://*.company.com'],
+  apiKeys: {
+    [process.env.PROD_API_KEY_1]: 'Production App 1',
+    [process.env.PROD_API_KEY_2]: 'Production App 2'
+  }
+}
+```
+
+### Docker Deployment
+
+```dockerfile
+# API Gateway SDK
+FROM node:18-alpine
+WORKDIR /app
+COPY api-gateway-sdk/package*.json ./
+RUN npm install --production
+COPY api-gateway-sdk/src ./src
+EXPOSE 9000
+CMD ["npm", "start"]
+```
+
+## Monitoring
+
+### Request Statistics
+
+The API Gateway provides comprehensive monitoring:
+- Request counts and response times
+- Success rates and error tracking
+- Top origins and API key usage
+- Rate limiting metrics
+
+Access monitoring at:
+- http://localhost:9000/gateway/stats
+- http://localhost:9000/gateway/logs
+
+## Security Features
+
+- **API Key Authentication**: Required for non-whitelisted domains
+- **Rate Limiting**: 1000 requests per 15 minutes per API key
+- **CORS Protection**: Configurable origin whitelisting
+- **Request Logging**: Comprehensive audit trail
+- **Environment Isolation**: Separate configs for dev/staging/prod
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Port conflicts**: Ensure ports 3000, 3001, 8000, 9000 are available
+2. **CORS errors**: Verify API Gateway is running and configured
+3. **API key issues**: Check API key is valid and properly set
+4. **Connection errors**: Ensure all services are started
+
+### Debug Mode
+
+Enable debug logging in the client SDK:
+
+```javascript
+apiGateway.on('request', console.log);
+apiGateway.on('response', console.log);
+apiGateway.on('error', console.error);
+```
+
+## License
+
+MIT License - see individual component licenses for details.
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## Future Enhancements
+
+- WebSocket support through the gateway
+- GraphQL proxy capabilities
+- Advanced caching mechanisms
+- Distributed tracing
+- Admin dashboard for monitoring
+- Automated API key management
+- Circuit breaker patterns

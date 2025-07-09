@@ -1,25 +1,43 @@
 {
-  "name": "super-marketplace",
+  "name": "super-marketplace-poc",
   "version": "1.0.0",
-  "description": "Two separate React frontend apps with webpack configs and Express backend",
+  "description": "POC for Super Marketplace with App 1 making direct API calls and App 2 using API Gateway SDK for embedded iframe communication",
   "scripts": {
-    "install:app1": "cd app1 && npm install",
-    "install:app2": "cd app2 && npm install",
-    "install:server": "cd server && npm install",
-    "install:all": "npm run install:app1 && npm run install:app2 && npm run install:server",
+    "start": "concurrently \"npm run start:app1\" \"npm run start:app2\" \"npm run start:server\" \"npm run start:gateway\"",
     "start:app1": "cd app1 && npm start",
     "start:app2": "cd app2 && npm start",
-    "start:server": "cd server && npm run dev",
+    "start:server": "cd server && npm start",
+    "start:gateway": "cd api-gateway-sdk && npm start",
+    "dev": "concurrently \"npm run dev:app1\" \"npm run dev:app2\" \"npm run dev:server\" \"npm run dev:gateway\"",
+    "dev:app1": "cd app1 && npm start",
+    "dev:app2": "cd app2 && npm start",
+    "dev:server": "cd server && npm run dev",
+    "dev:gateway": "cd api-gateway-sdk && npm run dev",
+    "build": "npm run build:app1 && npm run build:app2 && npm run build:gateway",
     "build:app1": "cd app1 && npm run build",
     "build:app2": "cd app2 && npm run build",
-    "build:all": "npm run build:app1 && npm run build:app2"
+    "build:gateway": "cd api-gateway-sdk && npm run build",
+    "install:all": "npm install && cd app1 && npm install && cd ../app2 && npm install && cd ../server && npm install && cd ../api-gateway-sdk && npm install",
+    "clean": "rm -rf node_modules app1/node_modules app2/node_modules server/node_modules api-gateway-sdk/node_modules",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "workspaces": [
-    "app1",
-    "app2",
-    "server"
-  ],
   "devDependencies": {
     "concurrently": "^8.2.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/super-marketplace-poc.git"
+  },
+  "keywords": [
+    "react",
+    "frontend",
+    "api-gateway",
+    "sdk",
+    "cors",
+    "microservices",
+    "iframe",
+    "embedded-apps"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
 } 
