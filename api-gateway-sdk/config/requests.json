@@ -1,0 +1,11 @@
+{
+  "backendTestApi": {
+    "method": "GET",
+    "protocol": "http",
+    "path": "/api/test",
+    "headers": {
+      "Content-Type": "application/json",
+      "User-Agent": "Super-Marketplace-Gateway/1.0"
+    }
+  }
+} 

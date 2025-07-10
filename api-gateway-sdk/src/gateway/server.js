@@ -158,7 +158,16 @@ class APIGatewayServer {
         
         // Build request URL
         const protocol = processedTemplate.protocol || 'https';
-        const url = `${protocol}://${processedTemplate.host}${processedTemplate.path || ''}`;
+        let url = `${protocol}://${processedTemplate.host}${processedTemplate.path || ''}`;
+        
+        // Add query parameters if they exist
+        if (processedTemplate.query) {
+          const queryParams = new URLSearchParams();
+          for (const [key, value] of Object.entries(processedTemplate.query)) {
+            queryParams.append(key, value);
+          }
+          url += `?${queryParams.toString()}`;
+        }
         
         // Make HTTP request
         const axiosConfig = {

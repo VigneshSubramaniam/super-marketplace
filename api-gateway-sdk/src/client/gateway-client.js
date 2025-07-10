@@ -191,7 +191,6 @@ if (typeof module !== 'undefined' && module.exports) {
   window.GatewayClient = GatewayClient;
   window.RequestClient = RequestClient;
   
-  // Mimic Freshworks client interface
   window.client = {
     request: {
       invokeTemplate: async (templateName, options) => {

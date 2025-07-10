@@ -2,41 +2,42 @@ const fs = require('fs');
 const path = require('path');
 
 class RequestTemplateManager {
-  constructor() {
+  constructor(appId = 'app2') {
     this.templates = new Map();
     this.manifestTemplates = new Map();
+    this.appId = appId;
     this.loadRequestTemplates();
   }
 
   loadRequestTemplates() {
-    // Load request templates from app2/config/requests.json
-    const requestsPath = path.join(process.cwd(), '..', 'app2', 'config', 'requests.json');
+    // Load master request templates from gateway's config/requests.json
+    const requestsPath = path.join(process.cwd(), 'config', 'requests.json');
     if (fs.existsSync(requestsPath)) {
       try {
         const requestsData = JSON.parse(fs.readFileSync(requestsPath, 'utf8'));
         for (const [templateName, templateConfig] of Object.entries(requestsData)) {
           this.templates.set(templateName, templateConfig);
         }
-        console.log(`✅ Loaded ${this.templates.size} request templates from app2/config/requests.json`);
+        console.log(`✅ Loaded ${this.templates.size} request templates from gateway config/requests.json`);
       } catch (error) {
         console.error('❌ Error loading request templates:', error.message);
       }
     } else {
-      console.log('⚠️  No request templates found at app2/config/requests.json');
+      console.log('⚠️  No request templates found at gateway config/requests.json');
     }
 
-    // Load manifest templates from app2/manifest.json
-    const manifestPath = path.join(process.cwd(), '..', 'app2', 'manifest.json');
+    // Load app-specific manifest templates from app's manifest.json for permission validation
+    const manifestPath = path.join(process.cwd(), '..', this.appId, 'manifest.json');
     if (fs.existsSync(manifestPath)) {
       try {
         const manifestData = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
         this.loadManifestTemplates(manifestData);
-        console.log(`✅ Loaded manifest templates for ${Object.keys(manifestData.product || {}).length} products from app2/manifest.json`);
+        console.log(`✅ Loaded manifest permissions for ${Object.keys(manifestData.product || {}).length} products from ${this.appId}/manifest.json`);
       } catch (error) {
         console.error('❌ Error loading manifest templates:', error.message);
       }
     } else {
-      console.log('⚠️  No manifest.json found at app2/manifest.json');
+      console.log(`⚠️  No manifest.json found at ${this.appId}/manifest.json`);
     }
   }
 
@@ -94,6 +95,14 @@ class RequestTemplateManager {
     
     // Process template variables using context
     processedTemplate.path = this.processTemplateString(template.path || '', context);
+    
+    // Process query parameters if they exist
+    if (template.query) {
+      processedTemplate.query = {};
+      for (const [key, value] of Object.entries(template.query)) {
+        processedTemplate.query[key] = this.processTemplateString(value, context);
+      }
+    }
     
     // Process headers
     if (template.headers) {
