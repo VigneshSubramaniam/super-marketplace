@@ -9,7 +9,9 @@
         }
       },
       "requests": {
-        "backendTestApi": {}
+        "backendTestApi": {
+          "description": "Test API endpoint for demonstrating CORS bypass"
+        }
       }
     }
   },
